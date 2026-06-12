@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему - MedApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">Главная</a>
+                <a href="/register" class="btn btn-outline">Регистрация</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2><i class="fas fa-sign-in-alt"></i> Вход в систему</h2>
+        
+        <div id="message" style="display: none;" class="alert"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="identity">Email или имя пользователя</label>
+                <input type="text" id="identity" class="form-control" required>
+                <div class="form-text">Введите email или username, указанный при регистрации</div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Войти как</label>
+                <select id="role" class="form-control">
+                    <option value="user">Пользователь</option>
+                    <option value="doctor">Врач</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" class="form-control" required>
+                <div class="form-text">
+                    <a href="#" onclick="showForgotPassword()">Забыли пароль?</a>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </div>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <p>Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        // Проверка, если пользователь уже авторизован — направляем врачей на их дашборд
+        if (getToken()) {
+            const existingUser = getUser();
+            if (existingUser && existingUser.role === 'doctor') {
+                window.location.href = '/doctor-dashboard.html';
+            } else {
+                window.location.href = '/dashboard';
+            }
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const identity = document.getElementById('identity').value.trim();
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+
+            // detect if identity is email
+            const isEmail = identity.includes('@');
+            const body = { password, role };
+            if (isEmail) body.email = identity; else body.username = identity;
+            
+            const messageEl = document.getElementById('message');
+            messageEl.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    setToken(data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showMessage('success', 'Успешный вход! Перенаправление...');
+                    setTimeout(() => {
+                        // Redirect doctors to the doctor dashboard
+                        if (data.user && data.user.role === 'doctor') {
+                            window.location.href = '/doctor-dashboard.html';
+                        } else {
+                            window.location.href = '/dashboard';
+                        }
+                    }, 800);
+                } else {
+                    showMessage('danger', data.message || 'Ошибка при входе');
+                }
+            } catch (error) {
+                showMessage('danger', 'Ошибка сети. Попробуйте позже.');
+            }
+        });
+
+        // Auto-lookup role when user types identity
+        const identityInput = document.getElementById('identity');
+        const roleSelect = document.getElementById('role');
+        let lookupTimeout;
+        identityInput.addEventListener('input', () => {
+            clearTimeout(lookupTimeout);
+            lookupTimeout = setTimeout(async () => {
+                const val = identityInput.value.trim();
+                if (!val) return;
+                try {
+                    const res = await fetch(`/api/auth/lookup?identity=${encodeURIComponent(val)}`);
+                    const json = await res.json();
+                    if (json.exists) {
+                        // Map role names to select values (no admin option in UI)
+                        if (json.role === 'doctor') roleSelect.value = 'doctor';
+                        else roleSelect.value = 'user';
+                    }
+                } catch (e) {
+                    // ignore lookup failures
+                }
+            }, 500);
+        });
+        
+        function showForgotPassword() {
+            showMessage('info', 'Для восстановления пароля обратитесь в поддержку: support@medapp.ru');
+        }
+    </script>
+</body>
+</html>

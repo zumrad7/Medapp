@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctor Dashboard - MedApp</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Панель врача</h1>
+      <button class="btn btn-outline" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 24px;">
+    <h2>Панель врача</h2>
+    <p id="doctorIntro" style="color:var(--text-light)"></p>
+
+    <div id="errorMessage" style="display:none; margin-bottom:16px;" class="alert alert-danger"></div>
+
+    <div style="display:flex; gap:20px; align-items:flex-start;">
+      <section id="patientsSection" style="flex:1;">
+        <h3>Список пациентов</h3>
+        <div id="doctorPatients" style="min-height:80px; background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border-color);"></div>
+      </section>
+
+      <section id="appointmentsSection" style="flex:2;">
+        <h3>Записи (последние)</h3>
+        <div id="doctorAppointments" style="min-height:80px; background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border-color);"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/js/utils.js"></script>
+  <script src="/js/doctorDashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наши врачи - MedApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .doctor-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .doctor-image {
+            height: 150px;
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .doctor-image i {
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .doctor-info {
+            padding: 20px;
+        }
+        
+        .doctor-info h3 {
+            margin: 0 0 5px 0;
+        }
+        
+        .specialization {
+            color: #2563eb;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+        }
+        
+        .doctor-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .doctor-details i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .doctor-rating {
+            color: #f59e0b;
+        }
+        
+        .doctor-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .doctor-actions .btn {
+            flex: 1;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            grid-column: 1 / -1;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: #10b981;
+        }
+        
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .btn-outline:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .btn-outline.active {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Панель</a>
+                <a href="/doctors" class="active">Врачи</a>
+                <a href="/appointments">Записи</a>
+                <a href="/profile">Профиль</a>
+                <a href="#" onclick="logout()" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 40px;">
+        <div id="message" style="display: none;" class="alert"></div>
+        
+        <h1><i class="fas fa-user-md"></i> Наши врачи</h1>
+        <p>Выберите специалиста для записи на прием</p>
+        
+        <div style="margin: 20px 0;">
+            <input type="text" id="searchInput" class="form-control" 
+                   placeholder="Поиск по имени или специализации..." 
+                   oninput="searchDoctors()">
+        </div>
+        
+        <div class="specialization-filter" style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-outline active" onclick="filterBySpecialization('all')">Все</button>
+            <button class="btn btn-outline" onclick="filterBySpecialization('Кардиология')">Кардиология</button>
+            <button class="btn btn-outline" onclick="filterBySpecialization('Неврология')">Неврология</button>
+            <button class="btn btn-outline" onclick="filterBySpecialization('Терапевт')">Терапевт</button>
+            <button class="btn btn-outline" onclick="filterBySpecialization('Педиатрия')">Педиатрия</button>
+            <button class="btn btn-outline" onclick="filterBySpecialization('Дерматология')">Дерматология</button>
+        </div>
+        
+        <div id="doctorsList" class="doctors-grid">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        let allDoctors = [];
+        
+        // Загрузка врачей
+        document.addEventListener('DOMContentLoaded', loadDoctors);
+        
+        async function loadDoctors() {
+            try {
+                const response = await fetch('/api/doctors');
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки врачей');
+                }
+                
+                allDoctors = await response.json();
+                console.log('Загружено врачей:', allDoctors.length);
+                displayDoctors(allDoctors);
+                
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+                showMessage('danger', 'Ошибка загрузки врачей');
+            }
+        }
+        
+        function displayDoctors(doctors) {
+            const container = document.getElementById('doctorsList');
+            
+            if (!doctors || doctors.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6b7280; width: 100%;">
+                        <i class="fas fa-user-md fa-3x" style="margin-bottom: 20px;"></i>
+                        <p>Врачи не найдены</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = doctors.map(doctor => {
+                const availabilityBadge = doctor.is_available 
+                    ? '<span class="badge badge-success">Доступен</span>'
+                    : '<span class="badge badge-warning">Недоступен</span>';
+                
+                const ratingStars = '★'.repeat(Math.floor(doctor.rating || 0)) + 
+                                 '☆'.repeat(5 - Math.floor(doctor.rating || 0));
+                
+                return `
+                <div class="doctor-card">
+                    <div class="doctor-image">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="doctor-info">
+                        <h3>${doctor.fullName}</h3>
+                        <p class="specialization">${doctor.specialization || 'Врач'}</p>
+                        <div style="margin-bottom: 10px;">
+                            ${availabilityBadge}
+                        </div>
+                        <p class="doctor-details">
+                            <i class="fas fa-graduation-cap"></i> ${doctor.education || 'Высшее медицинское образование'}
+                        </p>
+                        <p class="doctor-details">
+                            <i class="fas fa-briefcase"></i> Опыт: ${doctor.experience || '10'}+ лет
+                        </p>
+                        <p class="doctor-details doctor-rating">
+                            <i class="fas fa-star"></i> Рейтинг: ${ratingStars} (${doctor.rating || '4.8'}/5)
+                        </p>
+                        ${doctor.description ? `
+                            <p style="margin: 15px 0; color: #4b5563; font-size: 0.9rem;">
+                                ${doctor.description}
+                            </p>
+                        ` : ''}
+                        <div class="doctor-actions">
+                            <a href="/book?doctor=${doctor._id}" class="btn btn-primary" 
+                               ${!doctor.is_available ? 'style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                                <i class="fas fa-calendar-plus"></i> Записаться
+                            </a>
+                            <button class="btn btn-outline" onclick="viewDoctorDetails('${doctor._id}')">
+                                <i class="fas fa-info-circle"></i> Подробнее
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function searchDoctors() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayDoctors(allDoctors);
+                return;
+            }
+            
+            const filtered = allDoctors.filter(doctor => 
+                doctor.fullName.toLowerCase().includes(searchTerm) ||
+                (doctor.specialization && doctor.specialization.toLowerCase().includes(searchTerm))
+            );
+            
+            displayDoctors(filtered);
+        }
+        
+        function filterBySpecialization(specialization) {
+            // Обновляем активную кнопку
+            document.querySelectorAll('.specialization-filter .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (specialization === 'all') {
+                displayDoctors(allDoctors);
+                return;
+            }
+            
+            const filtered = allDoctors.filter(doctor => 
+                doctor.specialization === specialization
+            );
+            
+            displayDoctors(filtered);
+        }
+        
+        async function viewDoctorDetails(doctorId) {
+            try {
+                const response = await fetch(`/api/doctors/${doctorId}`);
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки информации о враче');
+                }
+                
+                const doctor = await response.json();
+                
+                const modalContent = `
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                        <div style="flex-shrink: 0;">
+                            <div style="width: 100px; height: 100px; background: #2563eb; 
+                                  border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-md fa-3x" style="color: white;"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="margin-top: 0;">${doctor.fullName}</h3>
+                            <p><strong>Специализация:</strong> ${doctor.specialization || 'Не указана'}</p>
+                            <p><strong>Опыт работы:</strong> ${doctor.experience || '10'}+ лет</p>
+                            <p><strong>Образование:</strong> ${doctor.education || 'Не указано'}</p>
+                            <p><strong>Рейтинг:</strong> ${doctor.rating || '4.8'}/5</p>
+                            <p><strong>Статус:</strong> ${doctor.is_available ? 'Доступен' : 'Недоступен'}</p>
+                        </div>
+                    </div>
+                    
+                    ${doctor.description ? `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4 style="margin-top: 0;">О враче:</h4>
+                            <p>${doctor.description}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${doctor.languages && doctor.languages.length > 0 ? `
+                        <div>
+                            <h4>Языки:</h4>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                ${doctor.languages.map(lang => 
+                                    `<span class="badge" style="background: #e0f2fe; color: #0369a1;">${lang}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                // Показываем модальное окно
+                showModal(doctor.fullName, modalContent, [
+                    {
+                        text: '<i class="fas fa-calendar-plus"></i> Записаться на прием',
+                        class: 'btn-primary',
+                        onclick: `window.location.href='/book?doctor=${doctor._id}'`
+                    }
+                ]);
+                
+            } catch (error) {
+                console.error('Error loading doctor details:', error);
+                showMessage('danger', 'Ошибка загрузки информации');
+            }
+        }
+        
+        function showMessage(type, text) {
+            const messageEl = document.getElementById('message');
+            messageEl.className = `alert alert-${type}`;
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showModal(title, content, buttons = []) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">${title}</h3>
+                        <button class="modal-close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">
+                            &times;
+                        </button>
+                    </div>
+                    <div style="padding: 20px;">
+                        ${content}
+                    </div>
+                    <div style="padding: 20px; border-top: 1px solid #e5e7eb; text-align: right;">
+                        ${buttons.map(btn => `
+                            <button class="btn ${btn.class}" onclick="${btn.onclick}">
+                                ${btn.text}
+                            </button>
+                        `).join('')}
+                        <button class="btn btn-outline modal-close" style="margin-left: 10px;">
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            document.body.appendChild(modal);
+            
+            // Добавляем обработчики закрытия
+            modal.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => modal.remove());
+            });
+        }
+        
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

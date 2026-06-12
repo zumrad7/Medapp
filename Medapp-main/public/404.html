@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница не найдена - MedApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container" style="text-align: center; padding: 100px 20px;">
+        <div style="font-size: 8rem; color: var(--primary-color);">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h1>404 - Страница не найдена</h1>
+        <p style="font-size: 1.2rem; color: var(--text-light); margin: 20px 0 40px;">
+            Запрашиваемая страница не существует или была перемещена.
+        </p>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> На главную
+            </a>
+            <a href="/dashboard" class="btn btn-outline">
+                <i class="fas fa-tachometer-alt"></i> В панель управления
+            </a>
+            <button class="btn btn-outline" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Назад
+            </button>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background: var(--background-light); 
+              border-radius: var(--radius); max-width: 600px; margin-left: auto; margin-right: auto;">
+            <h3>Возможные причины:</h3>
+            <ul style="text-align: left; margin-top: 10px;">
+                <li>Ссылка может быть устаревшей или неправильной</li>
+                <li>Страница была удалена или перемещена</li>
+                <li>Возможно, у вас нет доступа к этой странице</li>
+                <li>Введен неправильный URL адрес</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointments - MedApp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">MedApp</a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/records" class="active">Appointments</a>
+                <button id="logoutBtn" class="btn btn-outline">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>My Appointments</h1>
+            <button class="btn btn-primary" id="newAppointmentBtn">+ New Appointment</button>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="filter-btn" data-filter="cancelled">Cancelled</button>
+        </div>
+        
+        <div id="appointmentsContainer">
+            <p>Loading appointments...</p>
+        </div>
+        
+        <div id="message" class="message"></div>
+    </div>
+
+    <!-- Appointment Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <div id="appointmentDetail"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token || !user.id) {
+            window.location.href = '/login';
+        }
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        });
+        
+        // Load appointments
+        async function loadAppointments() {
+            try {
+                const response = await fetch('/api/records', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const appointments = await response.json();
+                displayAppointments(appointments);
+                
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('appointmentsContainer').innerHTML = 
+                    '<p class="error">Error loading appointments. Please try again.</p>';
+            }
+        }
+        
+        function displayAppointments(appointments) {
+            const container = document.getElementById('appointmentsContainer');
+            
+            if (appointments.length === 0) {
+                container.innerHTML = '<p>No appointments found. <a href="#" id="bookFirstAppointment">Book your first appointment</a></p>';
+                document.getElementById('bookFirstAppointment').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = '/dashboard';
+                });
+                return;
+            }
+            
+            // Sort by date (newest first)
+            appointments.sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
+            
+            let html = '<div class="appointments-grid">';
+            
+            appointments.forEach(appointment => {
+                const date = new Date(appointment.appointmentDate);
+                const now = new Date();
+                const isPast = date < now;
+                const isUpcoming = date > now && appointment.status !== 'cancelled';
+                
+                const doctorName = appointment.doctorId?.fullName || 'Unknown Doctor';
+                const patientName = appointment.patientId?.fullName || 'Unknown Patient';
+                
+                html += `
+                    <div class="appointment-card ${appointment.status} ${isPast ? 'past' : ''}" data-id="${appointment._id}">
+                        <div class="appointment-header">
+                            <h3>${user.role === 'doctor' ? patientName : doctorName}</h3>
+                            <span class="status-badge status-${appointment.status}">${appointment.status}</span>
+                        </div>
+                        
+                        <div class="appointment-body">
+                            <p><strong>Date:</strong> ${date.toLocaleString()}</p>
+                            <p><strong>Reason:</strong> ${appointment.reason.substring(0, 50)}${appointment.reason.length > 50 ? '...' : ''}</p>
+                            
+                            ${appointment.symptoms && appointment.symptoms.length > 0 ? 
+                                `<p><strong>Symptoms:</strong> ${appointment.symptoms.join(', ')}</p>` : ''}
+                            
+                            ${appointment.diagnosis ? 
+                                `<p><strong>Diagnosis:</strong> ${appointment.diagnosis}</p>` : ''}
+                        </div>
+                        
+                        <div class="appointment-actions">
+                            <button class="btn btn-small" onclick="viewAppointmentDetail('${appointment._id}')">View Details</button>
+                            ${isUpcoming ? `<button class="btn btn-small btn-outline" onclick="cancelAppointment('${appointment._id}')">Cancel</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // Filter appointments
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter logic would go here
+                // For simplicity, we'll just reload all appointments
+                loadAppointments();
+            });
+        });
+        
+        // View appointment detail
+        window.viewAppointmentDetail = async function(id) {
+            try {
+                const response = await fetch(`/api/records/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const appointment = await response.json();
+                displayAppointmentDetail(appointment);
+                
+            } catch (error) {
+                console.error('Error loading appointment detail:', error);
+                showMessage('Error loading appointment details', 'error');
+            }
+        };
+        
+        function displayAppointmentDetail(appointment) {
+            const detailContainer = document.getElementById('appointmentDetail');
+            const modal = document.getElementById('detailModal');
+            
+            const date = new Date(appointment.appointmentDate).toLocaleString();
+            const doctorName = appointment.doctorId?.fullName || 'Unknown Doctor';
+            const patientName = appointment.patientId?.fullName || 'Unknown Patient';
+            
+            let html = `
+                <h2>Appointment Details</h2>
+                <div class="detail-section">
+                    <h3>Basic Information</h3>
+                    <p><strong>Doctor:</strong> ${doctorName}</p>
+                    <p><strong>Patient:</strong> ${patientName}</p>
+                    <p><strong>Date & Time:</strong> ${date}</p>
+                    <p><strong>Status:</strong> <span class="status-${appointment.status}">${appointment.status}</span></p>
+                    <p><strong>Duration:</strong> ${appointment.duration} minutes</p>
+                    <p><strong>Price:</strong> $${appointment.price || 0}</p>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Medical Information</h3>
+                    <p><strong>Reason:</strong> ${appointment.reason}</p>
+                    ${appointment.symptoms && appointment.symptoms.length > 0 ? 
+                        `<p><strong>Symptoms:</strong> ${appointment.symptoms.join(', ')}</p>` : ''}
+                    ${appointment.diagnosis ? 
+                        `<p><strong>Diagnosis:</strong> ${appointment.diagnosis}</p>` : ''}
+                    ${appointment.prescription ? 
+                        `<p><strong>Prescription:</strong> ${appointment.prescription}</p>` : ''}
+                    ${appointment.notes ? 
+                        `<p><strong>Notes:</strong> ${appointment.notes}</p>` : ''}
+                </div>
+            `;
+            
+            // Add action buttons based on role and status
+            if (user.role === 'doctor' && appointment.status !== 'completed' && appointment.status !== 'cancelled') {
+                html += `
+                    <div class="detail-section">
+                        <h3>Doctor Actions</h3>
+                        <button class="btn btn-primary" onclick="updateAppointmentStatus('${appointment._id}', 'completed')">Mark as Completed</button>
+                        <button class="btn btn-outline" onclick="showUpdateForm('${appointment._id}')">Add Diagnosis/Prescription</button>
+                    </div>
+                `;
+            }
+            
+            detailContainer.innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        // Close modal
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                document.getElementById('detailModal').style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') {
+                document.getElementById('detailModal').style.display = 'none';
+            }
+        });
+        
+        // Cancel appointment
+        window.cancelAppointment = async function(id) {
+            if (!confirm('Are you sure you want to cancel this appointment?')) return;
+            
+            try {
+                const response = await fetch(`/api/records/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+                
+                if (response.ok) {
+                    showMessage('Appointment cancelled successfully', 'success');
+                    loadAppointments();
+                } else {
+                    const data = await response.json();
+                    showMessage(data.message || 'Failed to cancel appointment', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+        };
+        
+        // Update appointment status
+        window.updateAppointmentStatus = async function(id, status) {
+            try {
+                const response = await fetch(`/api/records/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (response.ok) {
+                    showMessage(`Appointment marked as ${status}`, 'success');
+                    loadAppointments();
+                    document.getElementById('detailModal').style.display = 'none';
+                } else {
+                    const data = await response.json();
+                    showMessage(data.message || 'Failed to update appointment', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+        };
+        
+        // Show update form
+        window.showUpdateForm = function(id) {
+            const detailContainer = document.getElementById('appointmentDetail');
+            
+            detailContainer.innerHTML += `
+                <div class="detail-section">
+                    <h3>Update Medical Information</h3>
+                    <form id="updateMedicalForm">
+                        <div class="form-group">
+                            <label for="diagnosis">Diagnosis</label>
+                            <textarea id="diagnosis" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="prescription">Prescription</label>
+                            <textarea id="prescription" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Updates</button>
+                    </form>
+                </div>
+            `;
+            
+            document.getElementById('updateMedicalForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const updateData = {
+                    diagnosis: document.getElementById('diagnosis').value,
+                    prescription: document.getElementById('prescription').value,
+                    notes: document.getElementById('notes').value
+                };
+                
+                try {
+                    const response = await fetch(`/api/records/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    if (response.ok) {
+                        showMessage('Medical information updated successfully', 'success');
+                        viewAppointmentDetail(id);
+                    } else {
+                        const data = await response.json();
+                        showMessage(data.message || 'Failed to update information', 'error');
+                    }
+                } catch (error) {
+                    showMessage('Network error. Please try again.', 'error');
+                }
+            });
+        };
+        
+        // New appointment button
+        document.getElementById('newAppointmentBtn').addEventListener('click', () => {
+            window.location.href = '/dashboard';
+        });
+        
+        // Helper function for messages
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            }, 5000);
+        }
+        
+        // Check for URL parameters (for viewing specific appointment)
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentId = urlParams.get('id');
+        
+        if (appointmentId) {
+            setTimeout(() => viewAppointmentDetail(appointmentId), 500);
+        }
+        
+        // Initialize
+        loadAppointments();
+    </script>
+</body>
+</html>

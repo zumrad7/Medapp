@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль - MedApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .profile-sidebar {
+            flex: 0 0 200px;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar i {
+            font-size: 6rem;
+            color: white;
+        }
+        
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .profile-actions .btn {
+            width: 100%;
+        }
+        
+        .profile-content {
+            flex: 1;
+        }
+        
+        .profile-info {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .profile-details .detail {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .profile-details i {
+            color: #2563eb;
+            font-size: 1.2rem;
+            margin-top: 3px;
+        }
+        
+        .profile-stats {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .profile-stats .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .profile-stats .stat {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .profile-stats .stat h4 {
+            font-size: 2rem;
+            color: #2563eb;
+            margin: 0 0 10px 0;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .btn-outline:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+            }
+            
+            .profile-sidebar {
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                margin: 0 auto 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Панель</a>
+                <a href="/doctors">Врачи</a>
+                <a href="/appointments">Записи</a>
+                <a href="/profile" class="active">Профиль</a>
+                <a href="#" onclick="logout()" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 40px; max-width: 800px;">
+        <div id="message" style="display: none;" class="alert"></div>
+        
+        <h1><i class="fas fa-user"></i> Мой профиль</h1>
+        
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-outline" onclick="showEditProfile()">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </button>
+                    <button class="btn btn-outline" onclick="showChangePassword()">
+                        <i class="fas fa-key"></i> Сменить пароль
+                    </button>
+                </div>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-info">
+                    <h2 id="profileName">Загрузка...</h2>
+                    <div class="profile-details">
+                        <div class="detail">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email</strong>
+                                <p id="profileEmail">-</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Телефон</strong>
+                                <p id="profilePhone">-</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div>
+                                <strong>Дата рождения</strong>
+                                <p id="profileBirthDate">-</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-user-tag"></i>
+                            <div>
+                                <strong>Роль</strong>
+                                <p id="profileRole">-</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-calendar-plus"></i>
+                            <div>
+                                <strong>Дата регистрации</strong>
+                                <p id="profileCreatedAt">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-stats">
+                    <h3>Статистика</h3>
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <h4 id="totalAppointments">0</h4>
+                            <p>Всего записей</p>
+                        </div>
+                        <div class="stat">
+                            <h4 id="completedAppointments">0</h4>
+                            <p>Завершено</p>
+                        </div>
+                        <div class="stat">
+                            <h4 id="upcomingAppointments">0</h4>
+                            <p>Предстоящие</p>
+                        </div>
+                        <div class="stat">
+                            <h4 id="doctorsVisited">0</h4>
+                            <p>Врачей посещено</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        // Загрузка профиля
+        document.addEventListener('DOMContentLoaded', loadProfile);
+        
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/users/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error('Ошибка загрузки профиля');
+                }
+                
+                const profile = await response.json();
+                console.log('Профиль загружен:', profile);
+                displayUserInfo(profile);
+                
+                // Сохраняем пользователя в localStorage
+                localStorage.setItem('user', JSON.stringify(profile));
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showMessage('danger', 'Ошибка загрузки профиля');
+            }
+        }
+        
+        function displayUserInfo(user) {
+            document.getElementById('profileName').textContent = user.fullName || 'Не указано';
+            document.getElementById('profileEmail').textContent = user.email || 'Не указано';
+            document.getElementById('profilePhone').textContent = formatPhone(user.phone) || 'Не указано';
+            document.getElementById('profileBirthDate').textContent = 
+                user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : 'Не указано';
+            document.getElementById('profileRole').textContent = 
+                user.role === 'patient' ? 'Пациент' : 
+                user.role === 'doctor' ? 'Врач' : 'Администратор';
+            document.getElementById('profileCreatedAt').textContent = 
+                user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Не указано';
+            
+            // Отображаем статистику, если она есть
+            if (user.stats) {
+                document.getElementById('totalAppointments').textContent = user.stats.totalAppointments || 0;
+                document.getElementById('completedAppointments').textContent = user.stats.completedAppointments || 0;
+                document.getElementById('upcomingAppointments').textContent = user.stats.upcomingAppointments || 0;
+                document.getElementById('doctorsVisited').textContent = user.stats.doctorsVisited || 0;
+            }
+        }
+        
+        function formatPhone(phone) {
+            if (!phone) return '-';
+            const cleaned = phone.replace(/\D/g, '');
+            if (cleaned.length === 11 && cleaned.startsWith('7')) {
+                return `+${cleaned[0]} (${cleaned.slice(1,4)}) ${cleaned.slice(4,7)}-${cleaned.slice(7,9)}-${cleaned.slice(9)}`;
+            }
+            return phone;
+        }
+        
+        function showEditProfile() {
+            const user = JSON.parse(localStorage.getItem('user')) || {};
+            
+            const modalContent = `
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editFullName">Полное имя</label>
+                        <input type="text" id="editFullName" class="form-control" 
+                               value="${user.fullName || ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPhone">Телефон</label>
+                        <input type="tel" id="editPhone" class="form-control" 
+                               value="${user.phone || ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editBirthDate">Дата рождения</label>
+                        <input type="date" id="editBirthDate" class="form-control" 
+                               value="${user.birthDate ? user.birthDate.split('T')[0] : ''}" required>
+                    </div>
+                </form>
+            `;
+            
+            showModal('Редактирование профиля', modalContent, [
+                {
+                    text: '<i class="fas fa-save"></i> Сохранить',
+                    class: 'btn-primary',
+                    onclick: 'saveProfileChanges()'
+                }
+            ]);
+        }
+        
+        async function saveProfileChanges() {
+            const formData = {
+                fullName: document.getElementById('editFullName').value,
+                phone: document.getElementById('editPhone').value,
+                birthDate: document.getElementById('editBirthDate').value
+            };
+            
+            try {
+                const response = await fetch('/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showMessage('success', 'Профиль обновлен');
+                    displayUserInfo(result.user);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    document.querySelector('.modal-close')?.click();
+                } else {
+                    const error = await response.json();
+                    showMessage('danger', error.message || 'Ошибка при обновлении профиля');
+                }
+            } catch (error) {
+                showMessage('danger', 'Ошибка сети');
+            }
+        }
+        
+        function showChangePassword() {
+            const modalContent = `
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Текущий пароль</label>
+                        <input type="password" id="currentPassword" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">Новый пароль</label>
+                        <input type="password" id="newPassword" class="form-control" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Подтвердите новый пароль</label>
+                        <input type="password" id="confirmNewPassword" class="form-control" required>
+                    </div>
+                </form>
+            `;
+            
+            showModal('Смена пароля', modalContent, [
+                {
+                    text: '<i class="fas fa-key"></i> Сменить пароль',
+                    class: 'btn-primary',
+                    onclick: 'changePassword()'
+                }
+            ]);
+        }
+        
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('danger', 'Пароли не совпадают');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showMessage('danger', 'Пароль должен содержать минимум 6 символов');
+                return;
+            }
+            
+            // Функция смены пароля
+            showMessage('info', 'Для смены пароля обратитесь в поддержку: support@medapp.ru');
+            document.querySelector('.modal-close')?.click();
+        }
+        
+        function showMessage(type, text) {
+            const messageEl = document.getElementById('message');
+            messageEl.className = `alert alert-${type}`;
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showModal(title, content, buttons = []) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">${title}</h3>
+                        <button class="modal-close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">
+                            &times;
+                        </button>
+                    </div>
+                    <div style="padding: 20px;">
+                        ${content}
+                    </div>
+                    <div style="padding: 20px; border-top: 1px solid #e5e7eb; text-align: right;">
+                        ${buttons.map(btn => `
+                            <button class="btn ${btn.class}" onclick="${btn.onclick}">
+                                ${btn.text}
+                            </button>
+                        `).join('')}
+                        <button class="btn btn-outline modal-close" style="margin-left: 10px;">
+                            Отмена
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            document.body.appendChild(modal);
+            
+            // Добавляем обработчики закрытия
+            modal.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => modal.remove());
+            });
+        }
+        
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedApp - Медицинская система записи</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+            <div class="nav-links">
+                <a href="/doctors">Врачи</a>
+                <a href="/login" class="btn btn-outline">Войти</a>
+                <a href="/register" class="btn btn-primary">Регистрация</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Герой секция -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Забота о вашем здоровье - наша главная задача</h1>
+                <p>Записывайтесь на прием к лучшим врачам онлайн. Быстро, удобно, безопасно.</p>
+                <div class="hero-buttons">
+                    <a href="/register" class="btn btn-primary btn-lg">Начать сейчас</a>
+                    <a href="/doctors" class="btn btn-outline btn-lg">Найти врача</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Особенности -->
+    <section class="features">
+        <div class="container">
+            <h2>Почему выбирают MedApp?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Онлайн запись</h3>
+                    <p>Записывайтесь на прием в любое время суток без очередей</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3>Лучшие врачи</h3>
+                    <p>Квалифицированные специалисты с многолетним опытом</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Безопасность данных</h3>
+                    <p>Ваши медицинские данные защищены и конфиденциальны</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Напоминания</h3>
+                    <p>Уведомления о приеме за день и за час до визита</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как это работает -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>Как это работает?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Регистрация</h3>
+                    <p>Создайте аккаунт и заполните ваш профиль</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Выбор врача</h3>
+                    <p>Найдите подходящего специалиста по направлению</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Запись на прием</h3>
+                    <p>Выберите удобную дату и время для визита</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Посещение врача</h3>
+                    <p>Приходите на прием в назначенное время</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Статистика -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat">
+                    <h3 id="doctorsCount">50+</h3>
+                    <p>Врачей</p>
+                </div>
+                <div class="stat">
+                    <h3 id="appointmentsCount">1000+</h3>
+                    <p>Успешных записей</p>
+                </div>
+                <div class="stat">
+                    <h3 id="patientsCount">500+</h3>
+                    <p>Довольных пациентов</p>
+                </div>
+                <div class="stat">
+                    <h3>24/7</h3>
+                    <p>Поддержка</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>MedApp</h3>
+                    <p>Современная система записи на медицинские приемы</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Быстрые ссылки</h3>
+                    <a href="/doctors">Врачи</a>
+                    <a href="/login">Войти</a>
+                    <a href="/register">Регистрация</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@medapp.ru</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MedApp. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/utils.js"></script>
+    <script>
+        // Загрузка статистики
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    document.getElementById('doctorsCount').textContent = data.database.doctors + '+';
+                    document.getElementById('appointmentsCount').textContent = data.database.appointments + '+';
+                    document.getElementById('patientsCount').textContent = (data.database.users - data.database.doctors) + '+';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>

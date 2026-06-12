@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - MedApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MedApp</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">Главная</a>
+                <a href="/login" class="btn btn-outline">Войти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2><i class="fas fa-user-plus"></i> Создание аккаунта</h2>
+        
+        <div id="message" style="display: none;" class="alert"></div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="fullName">Полное имя</label>
+                <input type="text" id="fullName" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email адрес</label>
+                <input type="email" id="email" class="form-control" required>
+                <div class="form-text">На этот email будут приходить уведомления о записях</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" class="form-control" required>
+                <div class="form-text">Будет использоваться для входа в систему</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" class="form-control" required>
+                <div class="form-text">Формат: +7 (999) 123-45-67</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="birthDate">Дата рождения</label>
+                <input type="date" id="birthDate" class="form-control" required>
+                <div class="form-text">Вам должно быть не менее 18 лет</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" class="form-control" required minlength="6">
+                <div class="form-text">Минимум 6 символов</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Подтверждение пароля</label>
+                <input type="password" id="confirmPassword" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </div>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <p>Уже есть аккаунт? <a href="/login">Войдите в систему</a></p>
+        </div>
+    </div>
+
+    <script src="/js/utils.js"></script>
+    <script>
+        // Проверка, если пользователь уже авторизован
+        if (getToken()) {
+            window.location.href = '/dashboard';
+        }
+        
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                birthDate: document.getElementById('birthDate').value
+            };
+            
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Валидация
+            const messageEl = document.getElementById('message');
+            messageEl.style.display = 'none';
+            
+            if (formData.password !== confirmPassword) {
+                showMessage('danger', 'Пароли не совпадают');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                showMessage('danger', 'Пароль должен содержать минимум 6 символов');
+                return;
+            }
+            
+            // Проверка возраста
+            const birthDate = new Date(formData.birthDate);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            if (age < 18) {
+                showMessage('danger', 'Вам должно быть не менее 18 лет');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('success', 'Регистрация успешна! Перенаправление на страницу входа...');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    showMessage('danger', data.message || 'Ошибка при регистрации');
+                }
+            } catch (error) {
+                showMessage('danger', 'Ошибка сети. Попробуйте позже.');
+            }
+        });
+        
+        // Установка минимальной даты (18 лет назад)
+        const today = new Date();
+        const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+        document.getElementById('birthDate').max = minDate.toISOString().split('T')[0];
+    </script>
+</body>
+</html>

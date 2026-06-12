@@ -1,0 +1,196 @@
+Project: Medapp — Medical Appointment System
+
+Description:
+Medapp is a lightweight medical appointment application consisting of a Node.js + Express backend and static frontend pages. It supports patient and doctor users, appointment booking and management, JWT authentication, email notifications, and works with MongoDB (Atlas or local). This repository contains server code, seed scripts, and simple front-end pages under public.
+
+Features
+
+Auth: registration and login (by email or username), JWT-based sessions.
+Roles: patient, doctor, admin with role-based route protection.
+Appointments: create, update, cancel; doctor endpoints to view patients and appointments.
+Emails: welcome and appointment notification via SMTP (configurable).
+Diagnostics: runtime Atlas connectivity diagnostic script (scripts/test-atlas.js).
+Deployment-ready: environment-driven configuration and  .nvmrc to pin Node 18.
+Tech Stack
+
+Runtime: Node.js (recommended >= 18)
+Server: Express
+DB: MongoDB Atlas / Mongoose (plus native mongodb client for legacy collections)
+Auth: JWT (jsonwebtoken), bcryptjs
+Email: nodemailer
+Frontend: static HTML + vanilla JS in public
+Quick Start (Local Development)
+
+Clone and install:
+git clone https://github.com/Zumrad777/Medapp.git
+cd Medapp
+npm install
+Create a local .env (example):
+Run the app:
+npm run dev (uses nodemon) or npm start
+Open http://localhost:3000 in your browser.
+Environment Variables
+
+MONGODB_URI: MongoDB connection string. REQUIRED in production.
+JWT_SECRET: JWT signing secret (set a strong value in production).
+PORT: Server port (default 3000).
+SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM: SMTP settings for sending emails.
+NODE_ENV: production or development.
+Important Files
+
+server.js — main application server.
+db.config.js — DB configuration (uses MONGODB_URI).
+public — frontend pages and client-side JS.
+seed.js — destructive seed script (DO NOT run in production).
+scripts/test-atlas.js — runtime diagnostic for Atlas connectivity.
+.nvmrc — pins Node 18 for deployment.
+package.json — scripts and engine hints.
+Seeding (WARNING — destructive)
+
+seed.js wipes and re-populates collections with test data.
+Run locally only:
+npm run seed or node scripts/seed.js
+Deployment (Render + MongoDB Atlas)
+
+Push code to GitHub and connect repo to Render (or other host).
+In Render:
+Set environment variables under Service → Environment (must include MONGODB_URI and JWT_SECRET).
+Ensure the service uses Node 18 (Render will respect .nvmrc / package.json engines).
+Trigger a deploy.
+In MongoDB Atlas:
+Add Render’s outbound IPs to Network Access whitelist, or for testing add 0.0.0.0/0 (remove after).
+Use the recommended connection string format (mongodb+srv://...) from Atlas and URL-encode any special characters in credentials.
+If you see TLS/SSL errors (e.g., ssl3_read_bytes:tlsv1 alert internal error):
+Confirm Render picked Node 18: run node -v and node -p "process.versions.openssl" in Render Shell.
+Run the diagnostic script: node scripts/test-atlas.js (prints Node/OpenSSL versions and driver error stacks).
+If Node/OpenSSL are older than expected, set runtime to Node 18 in Render settings or ensure .nvmrc is present and redeploy.
+Diagnostics
+
+To test Atlas connectivity from the runtime (Render Shell or local):
+The test-atlas.js script will mask credentials and print detailed error stacks to help debug TLS/connection issues.
+Screenshots
+
+You may add screenshots to the repo (recommended folder: docs/screenshots/).
+Reference them in README.md using Markdown:
+![Login page](docs/screenshots/login.png)
+Or use HTML in Markdown to control size:
+<img src="docs/screenshots/login.png" alt="Login" width="720" />
+Security Notes
+
+Never commit secrets (DB URIs, SMTP credentials, JWT secrets) to Git.
+Rotate credentials if they were pushed accidentally.
+Do not run seed.js on production.
+Useful NPM Scripts
+npm start — run node server.js
+npm run dev — run nodemon server.js
+npm run test — run node test-connection.js (DB connection check)
+npm run seed — run seed.js (destructive)
+node scripts/test-atlas.js — runtime Atlas diagnostic
+Troubleshooting Checklist (Atlas TLS error)
+
+Confirm MONGODB_URI is set in Render environment.
+Run in Render Shell:
+If Node/OpenSSL are old, pin Node 18 and redeploy (.nvmrc present).
+Temporarily whitelist 0.0.0.0/0 in Atlas Network Access to rule out IP block.
+Use the non-SRV connection string if SRV DNS fails.
+Paste diagnostic output into an issue or here and I will analyze it.
+Contributing
+
+Fork the repo → create a feature branch → open a PR to main.
+Add tests for new or changed API routes.
+License
+
+ISC (as in package.json) — change if needed.
+
+Deployment
+
+The application is deployed using Render.
+
+Backend deployed on: Render
+
+Database: MongoDB Atlas
+
+Environment variables configured in Render dashboard
+
+live URL: medapp-1-cn65.onrender.com/dashboard
+
+### Health Check
+
+curl https://your-app.up.railway.app/api/health
+
+---
+
+##  Screenshots
+
+### 1. Home Page
+./photo_5215204446680324095_y.jpg
+
+### 2. Registration Page
+User registration form with validation for:
+- Email format
+- Password strength
+- Age verification (18+)
+- Username uniqueness
+- 
+./photo_5215204446680324099_y.jpg
+
+
+### 3. Login Page
+Secure login with email and password authentication.
+
+./photo_5215204446680324100_y.jpg
+
+### 4. Dashboard
+User dashboard showing:
+- Quick stats (appointments, services)
+- Upcoming appointments
+- Recent activity
+- Quick action buttons
+
+./photo_5215204446680324102_y.jpg
+
+### 5. Book Appointment
+Appointment booking form with:
+- Doctor selection
+- Date/time picker
+- Reason for visit
+- Symptoms checklist
+- Duration selection
+
+./photo_5215204446680324110_y.jpg
+
+### 6. Doctors List
+Browse and filter doctors by:
+- Specialization
+- Availability
+- Rating/Reviews
+- Search functionality
+
+./photo_5215204446680324109_y.jpg
+
+### 7. Appointments
+View all appointments with:
+- Status indicators
+- Action buttons
+- Detailed information
+- Cancel/reschedule options
+
+./photo_5215204446680324108_y.jpg
+
+### 8. Medical Records
+For doctors:
+- View medical history
+- Diagnosis information
+- Prescription details
+- Doctor notes
+
+./photo_5215204446680324117_y.jpg
+
+### 9. User Profile
+Manage profile information:
+- Personal details
+- Contact information
+- Change password
+- Delete account
+
+./photo_5215204446680324113_y.jpg
