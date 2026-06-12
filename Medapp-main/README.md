@@ -21,15 +21,6 @@ Email: nodemailer
 Frontend: static HTML + vanilla JS in public
 Quick Start (Local Development)
 
-Clone and install:
-git clone https://github.com/Zumrad777/Medapp.git
-cd Medapp
-npm install
-Create a local .env (example):
-Run the app:
-npm run dev (uses nodemon) or npm start
-Open http://localhost:3000 in your browser.
-Environment Variables
 
 MONGODB_URI: MongoDB connection string. REQUIRED in production.
 JWT_SECRET: JWT signing secret (set a strong value in production).
@@ -70,12 +61,6 @@ To test Atlas connectivity from the runtime (Render Shell or local):
 The test-atlas.js script will mask credentials and print detailed error stacks to help debug TLS/connection issues.
 Screenshots
 
-You may add screenshots to the repo (recommended folder: docs/screenshots/).
-Reference them in README.md using Markdown:
-![Login page](docs/screenshots/login.png)
-Or use HTML in Markdown to control size:
-<img src="docs/screenshots/login.png" alt="Login" width="720" />
-Security Notes
 
 Never commit secrets (DB URIs, SMTP credentials, JWT secrets) to Git.
 Rotate credentials if they were pushed accidentally.
